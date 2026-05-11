@@ -26,7 +26,6 @@ phpunit.xml
 
 # Docker files sendiri
 Dockerfile
-docker/
 .dockerignore
 
 # CI/CD
