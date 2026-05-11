@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules/
+
+# Laravel development files
+vendor/
+.env
+.env.*
+!.env.example
+
+# Logs & cache
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+
+# Testing
+tests/
+phpunit.xml
+.phpunit.cache/
+
+# Docker files sendiri
+Dockerfile
+docker/
+.dockerignore
+
+# CI/CD
+.github/
+
+# IDE & OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# npm dev files
+*.map

@@ -1,0 +1,37 @@
+name: Build & Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - run: gcloud auth configure-docker asia-southeast2-docker.pkg.dev
+
+      - name: Build & Push image
+        run: |
+          IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/invoice-app/invoice-app"
+          docker build -t $IMAGE:$GITHUB_SHA .
+          docker push $IMAGE:$GITHUB_SHA
+
+      - name: Deploy ke Cloud Run
+        run: |
+          IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/invoice-app/invoice-app"
+          gcloud run deploy invoice-app \
+            --image=$IMAGE:$GITHUB_SHA \
+            --platform=managed \
+            --region=${{ secrets.GCP_REGION }} \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=512Mi \
+            --set-env-vars="APP_ENV=production,APP_KEY=${{ secrets.APP_KEY }},APP_URL=${{ secrets.APP_URL }},DB_CONNECTION=mysql,DB_HOST=${{ secrets.DB_HOST }},DB_PORT=3306,DB_DATABASE=${{ secrets.DB_DATABASE }},DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},CLOUDINARY_URL=${{ secrets.CLOUDINARY_URL }}"
