@@ -30,8 +30,8 @@ jobs:
       - name: Install Composer deps
         run: composer install --no-interaction --prefer-dist --no-scripts
 
-      - name: Run Laravel Pint (dry-run)
-        run: ./vendor/bin/pint --test
+      - name: Run Laravel Pint (auto-fix)
+        run: ./vendor/bin/pint
 
   # ============================================================
   # S2 + S3: Install Dependencies & Automated Testing

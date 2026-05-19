@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Mitra;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class MitraController extends Controller
 {
@@ -75,6 +74,7 @@ class MitraController extends Controller
     public function destroy(Mitra $mitra)
     {
         $mitra->delete();
+
         return redirect()->route('mitras.index')->with('success', 'Mitra berhasil dihapus');
     }
 

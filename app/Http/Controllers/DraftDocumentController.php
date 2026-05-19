@@ -12,7 +12,7 @@ class DraftDocumentController extends Controller
         $query = DraftDocument::query();
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         $doc = $query->latest()->paginate(10)->withQueryString();
@@ -34,10 +34,10 @@ class DraftDocumentController extends Controller
         ]);
 
         $file = $request->file('file');
-        
+
         $uploadResult = $this->uploadToCloudinary($file);
 
-        if (!$uploadResult || !isset($uploadResult['secure_url'])) {
+        if (! $uploadResult || ! isset($uploadResult['secure_url'])) {
             return back()->withErrors(['file' => 'Gagal mengunggah file ke Cloudinary.']);
         }
 
@@ -57,14 +57,14 @@ class DraftDocumentController extends Controller
     public function show(DraftDocument $draftDocument)
     {
         return view('pages.document.view-document', [
-            'doc' => $draftDocument
+            'doc' => $draftDocument,
         ]);
     }
 
     public function edit(DraftDocument $draftDocument)
     {
         return view('pages.document.edit-document', [
-            'doc' => $draftDocument
+            'doc' => $draftDocument,
         ]);
     }
 
@@ -120,7 +120,9 @@ class DraftDocumentController extends Controller
         $apiKey = env('CLOUDINARY_API_KEY');
         $apiSecret = env('CLOUDINARY_API_SECRET');
 
-        if (!$cloud || !$apiKey || !$apiSecret) return null;
+        if (! $cloud || ! $apiKey || ! $apiSecret) {
+            return null;
+        }
 
         $mimeType = $file->getMimeType();
         $resourceType = (strpos($mimeType, 'image') !== false || strpos($mimeType, 'pdf') !== false) ? 'image' : 'raw';
@@ -160,7 +162,9 @@ class DraftDocumentController extends Controller
         $apiKey = env('CLOUDINARY_API_KEY');
         $apiSecret = env('CLOUDINARY_API_SECRET');
 
-        if (!($cloud && $apiKey && $apiSecret)) return false;
+        if (! ($cloud && $apiKey && $apiSecret)) {
+            return false;
+        }
 
         $resourceType = (strpos($mimeType, 'image') !== false || strpos($mimeType, 'pdf') !== false) ? 'image' : 'raw';
         $timestamp = time();
