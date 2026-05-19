@@ -5,28 +5,138 @@ on:
     branches: [main]
 
 jobs:
-  deploy:
+  # ============================================================
+  # S1: Code Quality — Laravel Pint
+  # ============================================================
+  lint:
+    name: "S1 · Code Quality"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: google-github-actions/auth@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer
+
+      - name: Cache Composer (lint only)
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-lint-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-lint-
+
+      - name: Install Composer deps
+        run: composer install --no-interaction --prefer-dist --no-scripts
+
+      - name: Run Laravel Pint (dry-run)
+        run: ./vendor/bin/pint --test
+
+  # ============================================================
+  # S2 + S3: Install Dependencies & Automated Testing
+  # ============================================================
+  test:
+    name: "S2+S3 · Install & Test"
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo, pdo_sqlite, pdo_mysql, mbstring, xml, curl, zip, gd, bcmath
+          coverage: none
+
+      - name: Cache Composer vendor
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-scripts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Prepare .env untuk testing
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run migrations (SQLite in-memory)
+        run: php artisan migrate --force
+
+      - name: Run Unit Tests
+        run: php artisan test --testsuite=Unit
+
+      - name: Run Feature Tests
+        run: php artisan test --testsuite=Feature
+
+  # ============================================================
+  # S4 + S5: Docker Build, Push & Deploy ke Cloud Run
+  # ============================================================
+  deploy:
+    name: "S4+S5 · Build & Deploy"
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      # Auth ke GCP dengan Service Account Key
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - uses: google-github-actions/setup-gcloud@v2
+      # Setup gcloud CLI
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
 
-      - run: gcloud auth configure-docker asia-southeast2-docker.pkg.dev
+      # Izinkan Docker push ke Artifact Registry GCP
+      - name: Configure Docker untuk Artifact Registry
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
-      - name: Build & Push image
+      # Build image dengan multi-stage Dockerfile
+      - name: Build Docker Image
         run: |
-          IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/invoice-app/invoice-app"
-          docker build -t $IMAGE:$GITHUB_SHA .
-          docker push $IMAGE:$GITHUB_SHA
+          IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app"
+          docker build \
+            --tag $IMAGE:$GITHUB_SHA \
+            --tag $IMAGE:latest \
+            --cache-from $IMAGE:latest \
+            .
 
+      # Push ke Artifact Registry
+      - name: Push Docker Image
+        run: |
+          IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app"
+          docker push $IMAGE:$GITHUB_SHA
+          docker push $IMAGE:latest
+
+      # Deploy ke Cloud Run
       - name: Deploy ke Cloud Run
         run: |
-          IMAGE="asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/invoice-app/invoice-app"
+          IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app"
           gcloud run deploy invoice-app \
             --image=$IMAGE:$GITHUB_SHA \
             --platform=managed \
@@ -34,4 +144,25 @@ jobs:
             --allow-unauthenticated \
             --port=8080 \
             --memory=512Mi \
-            --set-env-vars="APP_ENV=production,APP_KEY=${{ secrets.APP_KEY }},APP_URL=${{ secrets.APP_URL }},DB_CONNECTION=mysql,DB_HOST=${{ secrets.DB_HOST }},DB_PORT=3306,DB_DATABASE=${{ secrets.DB_DATABASE }},DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},CLOUDINARY_URL=${{ secrets.CLOUDINARY_URL }}"
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=3 \
+            --timeout=300 \
+            --set-env-vars="APP_ENV=production" \
+            --set-env-vars="APP_DEBUG=false" \
+            --set-env-vars="APP_KEY=${{ secrets.APP_KEY }}" \
+            --set-env-vars="APP_URL=${{ secrets.APP_URL }}" \
+            --set-env-vars="DB_CONNECTION=sqlite" \
+            --set-env-vars="DB_DATABASE=/tmp/database.sqlite" \
+            --set-env-vars="LOG_CHANNEL=stderr" \
+            --set-env-vars="CACHE_DRIVER=array" \
+            --set-env-vars="SESSION_DRIVER=cookie" \
+            --set-env-vars="QUEUE_CONNECTION=sync"
+
+      # Print URL hasil deploy
+      - name: Get Cloud Run URL
+        run: |
+          URL=$(gcloud run services describe invoice-app \
+            --region=${{ secrets.GCP_REGION }} \
+            --format='value(status.url)')
+          echo "✅ Deployed to: $URL"

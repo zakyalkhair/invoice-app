@@ -1,12 +1,22 @@
 #!/bin/sh
+set -e
 
-# Generate config cache
+echo "==> Starting invoice-app..."
+
+# Run storage link (idempotent, aman dijalankan berulang)
+php artisan storage:link --force 2>/dev/null || true
+
+# Buat SQLite dummy supaya Laravel tidak crash
+touch /tmp/database.sqlite
+php artisan migrate --force 2>/dev/null || true
+
+# Optimize config/route/view cache untuk production
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Start php-fpm di background
+echo "==> Starting PHP-FPM..."
 php-fpm -D
 
-# Start nginx di foreground
-nginx -g "daemon off;"
+echo "==> Starting Nginx..."
+exec nginx -g "daemon off;"
