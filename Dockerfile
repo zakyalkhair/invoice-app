@@ -94,8 +94,6 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini && \
     echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini
 
 # Salin hasil build dari stage builder
-COPY --from=builder /app/vendor ./vendor
-COPY --from=builder /app/public/build ./public/build
 COPY --from=builder /app .
 
 # Set permission yang benar
