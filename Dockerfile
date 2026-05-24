@@ -10,6 +10,7 @@ RUN apk add --no-cache \
     nodejs \
     npm \
     curl \
+    gcompat \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
