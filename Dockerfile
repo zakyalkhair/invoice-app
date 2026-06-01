@@ -68,6 +68,7 @@ RUN apk add --no-cache \
     unzip
 
 # Install PHP extensions
+# Install PHP extensions
 RUN apk add --no-cache \
     libpng-dev \
     libjpeg-turbo-dev \
@@ -84,8 +85,8 @@ RUN apk add --no-cache \
         gd \
         bcmath \
         pcntl \
-        opcache && \
-        sockets   
+        opcache \
+        sockets && \
     # Bersihkan dev headers setelah install
     apk del libpng-dev libjpeg-turbo-dev freetype-dev libxml2-dev oniguruma-dev
 
