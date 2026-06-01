@@ -40,7 +40,7 @@ if [ "$DB_CONNECTION" = "mysql" ]; then
     if [ $RETRIES -gt 0 ]; then
         echo "=== Running migrations ==="
         php artisan migrate --force || echo "WARNING: migrate failed"
-        php artisan db:seed --force 2>/dev/null || true
+        php artisan db:seed --force || true
     fi
 fi
 
