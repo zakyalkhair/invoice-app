@@ -157,8 +157,6 @@ jobs:
             --set-env-vars="APP_KEY=${{ secrets.APP_KEY }}" \
             --set-env-vars="APP_URL=${{ secrets.APP_URL }}" \
             --set-env-vars="DB_CONNECTION=mysql" \
-            --set-env-vars="DB_HOST=127.0.0.1" \
-            --set-env-vars="DB_PORT=3306" \
             --set-env-vars="DB_DATABASE=${{ secrets.DB_DATABASE }}" \
             --set-env-vars="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
             --set-env-vars="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
