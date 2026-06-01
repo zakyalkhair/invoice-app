@@ -62,7 +62,10 @@ class MitraSeeder extends Seeder
         ];
 
         foreach ($mitras as $mitra) {
-            Mitra::create($mitra);
+            Mitra::firstOrCreate(
+                ['company_name' => $mitra['company_name']],
+                $mitra
+            );
         }
 
         $this->command->info('Mitra seeder completed successfully.');

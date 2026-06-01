@@ -13,12 +13,17 @@ class DatabaseSeeder extends Seeder
     {
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         Role::firstOrCreate(['name' => 'staf']);
-        $admin = User::create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('KoperasiSM!'),
-        ]);
+        
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('KoperasiSM!'),
+            ]
+        );
+        
         $admin->assignRole($adminRole);
+        
         $this->call([
             MitraSeeder::class,
         ]);
