@@ -142,6 +142,7 @@ jobs:
           IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app"
           gcloud run deploy invoice-app \
             --image=$IMAGE:$GITHUB_SHA \
+            --service-account=github-action-sa@invoice-app-496008.iam.gserviceaccount.com \
             --platform=managed \
             --region=${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
