@@ -85,6 +85,7 @@ RUN apk add --no-cache \
         bcmath \
         pcntl \
         opcache && \
+        sockets   
     # Bersihkan dev headers setelah install
     apk del libpng-dev libjpeg-turbo-dev freetype-dev libxml2-dev oniguruma-dev
 

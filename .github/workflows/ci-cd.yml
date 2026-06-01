@@ -151,12 +151,18 @@ jobs:
             --min-instances=0 \
             --max-instances=3 \
             --timeout=300 \
+            --add-cloudsql-instances=${{ secrets.CLOUD_SQL_CONNECTION_NAME }} \
             --set-env-vars="APP_ENV=production" \
             --set-env-vars="APP_DEBUG=false" \
             --set-env-vars="APP_KEY=${{ secrets.APP_KEY }}" \
             --set-env-vars="APP_URL=${{ secrets.APP_URL }}" \
-            --set-env-vars="DB_CONNECTION=sqlite" \
-            --set-env-vars="DB_DATABASE=/tmp/database.sqlite" \
+            --set-env-vars="DB_CONNECTION=mysql" \
+            --set-env-vars="DB_HOST=127.0.0.1" \
+            --set-env-vars="DB_PORT=3306" \
+            --set-env-vars="DB_DATABASE=${{ secrets.DB_DATABASE }}" \
+            --set-env-vars="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
+            --set-env-vars="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+            --set-env-vars="DB_SOCKET=/cloudsql/${{ secrets.CLOUD_SQL_CONNECTION_NAME }}" \
             --set-env-vars="LOG_CHANNEL=stderr" \
             --set-env-vars="CACHE_DRIVER=array" \
             --set-env-vars="SESSION_DRIVER=cookie" \
