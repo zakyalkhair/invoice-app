@@ -59,6 +59,7 @@ WORKDIR /var/www/html
 RUN apk add --no-cache \
     nginx \
     curl \
+    netcat-openbsd \
     libpng \
     libjpeg-turbo \
     freetype \
