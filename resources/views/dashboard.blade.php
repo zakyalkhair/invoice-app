@@ -8,7 +8,7 @@
                     Selamat Datang, {{ auth()->user()->name }}! 👋
                 </h1>
                 <p class="mt-2 max-w-2xl text-zinc-500 dark:text-zinc-400">
-                    Panel kendali Koperasi Sehat Mulia. Di sini Anda dapat mengelola invoice, data mitra, dan dokumen penting lainnya dengan cepat dan aman.
+                    Dashboard Koperasi Sehat Mulia. Di sini Anda dapat mengelola invoice, data mitra, dan dokumen penting lainnya dengan cepat dan aman.
                 </p>
                 <div class="mt-6 flex gap-3">
                     <a href="{{ route('invoice') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-zinc-900 rounded-lg hover:bg-zinc-800 transition">
