@@ -1,0 +1,79 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches: [main]
+
+jobs:
+  deploy:
+    name: "S4+S5 · Build & Deploy"
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+
+      - name: Build Docker Image
+        run: |
+          IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app"
+          docker build \
+            --tag $IMAGE:$GITHUB_SHA \
+            --tag $IMAGE:latest \
+            --cache-from $IMAGE:latest \
+            .
+
+      - name: Push Docker Image
+        run: |
+          IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app"
+          docker push $IMAGE:$GITHUB_SHA
+          docker push $IMAGE:latest
+
+      - name: Deploy ke Cloud Run
+        run: |
+          IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app"
+          gcloud run deploy invoice-app \
+            --image=$IMAGE:$GITHUB_SHA \
+            --service-account=github-action-sa@invoice-app-496008.iam.gserviceaccount.com \
+            --platform=managed \
+            --region=${{ secrets.GCP_REGION }} \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=512Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=3 \
+            --timeout=300 \
+            --add-cloudsql-instances=${{ secrets.CLOUD_SQL_CONNECTION_NAME }} \
+            --set-env-vars="APP_ENV=production" \
+            --set-env-vars="APP_DEBUG=false" \
+            --set-env-vars="APP_KEY=${{ secrets.APP_KEY }}" \
+            --set-env-vars="APP_URL=${{ secrets.APP_URL }}" \
+            --set-env-vars="DB_CONNECTION=mysql" \
+            --set-env-vars="DB_DATABASE=${{ secrets.DB_DATABASE }}" \
+            --set-env-vars="DB_USERNAME=${{ secrets.DB_USERNAME }}" \
+            --set-env-vars="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+            --set-env-vars="DB_SOCKET=/cloudsql/${{ secrets.CLOUD_SQL_CONNECTION_NAME }}" \
+            --set-env-vars="LOG_CHANNEL=stderr" \
+            --set-env-vars="CACHE_DRIVER=array" \
+            --set-env-vars="SESSION_DRIVER=cookie" \
+            --set-env-vars="QUEUE_CONNECTION=sync"
+
+      - name: Get Cloud Run URL
+        run: |
+          URL=$(gcloud run services describe invoice-app \
+            --region=${{ secrets.GCP_REGION }} \
+            --format='value(status.url)')
+          echo "✅ Deployed to: $URL"
