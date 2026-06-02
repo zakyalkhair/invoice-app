@@ -1,0 +1,22 @@
+name: PR Preview Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  destroy-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - run: |
+          SERVICE_NAME="invoice-app-pr-${{ github.event.pull_request.number }}"
+          gcloud run services delete $SERVICE_NAME \
+            --region=${{ secrets.GCP_REGION }} \
+            --quiet
