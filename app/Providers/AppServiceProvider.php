@@ -19,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
-        if ($this->app->environment(['production', 'staging'])) {
+        if ($this->app->environment(['production'])) {
             URL::forceScheme('https');
         }
     }
@@ -29,10 +29,10 @@ class AppServiceProvider extends ServiceProvider
         Date::use(CarbonImmutable::class);
 
         DB::prohibitDestructiveCommands(
-            $this->app->isProduction(),
+            app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => $this->app->isProduction()
+        Password::defaults(fn (): ?Password => app()->isProduction()
             ? Password::min(12)
                 ->mixedCase()
                 ->letters()

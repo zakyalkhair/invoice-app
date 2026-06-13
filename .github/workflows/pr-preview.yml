@@ -11,12 +11,12 @@ permissions:
   issues: write
 
 jobs:
-  # ── Job 1: Lint ──────────────────────────────────────────
   lint:
     name: "S1 · Code Quality"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -37,13 +37,13 @@ jobs:
       - name: Run Laravel Pint
         run: ./vendor/bin/pint
 
-  # ── Job 2: Test ──────────────────────────────────────────
   test:
     name: "S2+S3 · Install & Test"
     runs-on: ubuntu-latest
     needs: lint
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
@@ -96,33 +96,39 @@ jobs:
       - name: Run Feature Tests
         run: php artisan test --testsuite=Feature
 
-  # ── Job 3: Deploy Preview ─────────────────────────────────
   deploy-preview:
     name: "S4+S5 · Build & Deploy Preview"
     runs-on: ubuntu-latest
-    needs: test          # ← hanya jalan kalau lint + test lolos
+    needs: test
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - uses: google-github-actions/auth@v2
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - uses: google-github-actions/setup-gcloud@v2
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
 
-      - run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
-      - run: |
+      - name: Build Docker Image
+        run: |
           IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app-preview"
           docker build \
             --tag $IMAGE:pr-${{ github.event.pull_request.number }} \
             .
 
-      - run: |
+      - name: Push Docker Image
+        run: |
           IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app-preview"
           docker push $IMAGE:pr-${{ github.event.pull_request.number }}
 
-      - run: |
+      - name: Deploy to Cloud Run
+        run: |
           IMAGE="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/invoice-app-preview"
           SERVICE_NAME="invoice-app-pr-${{ github.event.pull_request.number }}"
           
@@ -151,7 +157,8 @@ jobs:
             --set-env-vars="SESSION_DRIVER=cookie" \
             --set-env-vars="QUEUE_CONNECTION=sync"
 
-      - uses: actions/github-script@v7
+      - name: Comment PR with Preview URL
+        uses: actions/github-script@v7
         with:
           script: |
             const { execSync } = require('child_process');
