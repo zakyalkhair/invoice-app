@@ -17,7 +17,7 @@
         @endphp
 
         {{-- Welcome Section --}}
-        <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-700 dark:bg-zinc-900 shadow-sm">
+        <!-- <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-700 dark:bg-zinc-900 shadow-sm">
             <div class="relative z-10">
                 <p class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1">Koperasi Sehat Mulia</p>
                 <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">
@@ -307,7 +307,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> -->
 
     </div>
 </x-layouts::app>
