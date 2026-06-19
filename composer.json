@@ -66,6 +66,14 @@
             "@test:lint",
             "@php artisan test"
         ],
+        "test:coverage": [
+            "@php artisan config:clear --ansi",
+            "@php vendor/bin/pest --coverage"
+        ],
+        "test:coverage-html": [
+            "@php artisan config:clear --ansi",
+            "@php vendor/bin/pest --coverage --coverage-html=coverage-html"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

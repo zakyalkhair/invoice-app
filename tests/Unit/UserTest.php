@@ -60,3 +60,13 @@ test('user can be deleted', function () {
 
     expect(User::find($userId))->toBeNull();
 });
+
+test('user initials returns first letter of each of the first two words', function () {
+    $user = User::factory()->create(['name' => 'John Doe']);
+    expect($user->initials())->toBe('JD');
+});
+
+test('user initials with single word name returns one letter', function () {
+    $user = User::factory()->create(['name' => 'Admin']);
+    expect($user->initials())->toBe('A');
+});
