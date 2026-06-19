@@ -16,8 +16,7 @@
             $recentMitras    = \App\Models\Mitra::latest()->limit(5)->get();
         @endphp
 
-        {{-- Welcome Section --}}
-        <!-- <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-700 dark:bg-zinc-900 shadow-sm">
+        <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-700 dark:bg-zinc-900 shadow-sm">
             <div class="relative z-10">
                 <p class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1">Koperasi Sehat Mulia</p>
                 <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">
@@ -57,10 +56,9 @@
             <div class="absolute -bottom-10 right-20 size-36 rounded-full bg-blue-500/10 blur-3xl"></div>
         </div>
 
-        {{-- Stats Cards --}}
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-            <div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-zinc-900 shadow-sm p-5">
+            <div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-zinc-900 shadow-sm p-4">
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total Invoice</p>
@@ -75,7 +73,7 @@
                 </div>
             </div>
 
-            <div class="relative overflow-hidden rounded-xl border border-green-100 dark:border-green-900/40 bg-white dark:bg-zinc-900 shadow-sm p-5">
+            <div class="relative overflow-hidden rounded-xl border border-green-100 dark:border-green-900/40 bg-white dark:bg-zinc-900 shadow-sm p-4">
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Approved</p>
@@ -93,7 +91,7 @@
                 </div>
             </div>
 
-            <div class="relative overflow-hidden rounded-xl border border-amber-100 dark:border-amber-900/40 bg-white dark:bg-zinc-900 shadow-sm p-5">
+            <div class="relative overflow-hidden rounded-xl border border-amber-100 dark:border-amber-900/40 bg-white dark:bg-zinc-900 shadow-sm p-4">
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Pending</p>
@@ -111,7 +109,7 @@
                 </div>
             </div>
 
-            <div class="relative overflow-hidden rounded-xl border border-blue-100 dark:border-blue-900/40 bg-white dark:bg-zinc-900 shadow-sm p-5">
+            <div class="relative overflow-hidden rounded-xl border border-blue-100 dark:border-blue-900/40 bg-white dark:bg-zinc-900 shadow-sm p-4">
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total Mitra</p>
@@ -127,12 +125,10 @@
             </div>
         </div>
 
-        {{-- Main Content Grid --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {{-- Recent Invoices --}}
             <div class="lg:col-span-2 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-zinc-900 shadow-sm">
-                <div class="flex items-center justify-between p-5 border-b border-neutral-200 dark:border-neutral-700">
+                <div class="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-700">
                     <div>
                         <h2 class="text-base font-bold text-zinc-900 dark:text-white">Invoice Terbaru</h2>
                         <p class="text-xs text-zinc-400 mt-0.5">5 invoice paling baru</p>
@@ -179,11 +175,9 @@
                 </div>
             </div>
 
-            {{-- Right Column --}}
             <div class="flex flex-col gap-6">
 
-                {{-- Status Breakdown --}}
-                <div class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-zinc-900 shadow-sm p-5">
+                <div class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-zinc-900 shadow-sm p-4">
                     <h2 class="text-base font-bold text-zinc-900 dark:text-white mb-1">Status Invoice</h2>
                     <p class="text-xs text-zinc-400 mb-4">Distribusi status keseluruhan</p>
                     <div class="space-y-3">
@@ -218,8 +212,7 @@
                     </div>
                 </div>
 
-                {{-- Recent Documents --}}
-                <div class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-zinc-900 shadow-sm p-5 flex-1">
+                <div class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-zinc-900 shadow-sm p-4 flex-1">
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <h2 class="text-base font-bold text-zinc-900 dark:text-white">Draft Dokumen</h2>
@@ -255,9 +248,8 @@
             </div>
         </div>
 
-        {{-- Recent Mitras --}}
         <div class="overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-zinc-900 shadow-sm">
-            <div class="flex items-center justify-between p-5 border-b border-neutral-200 dark:border-neutral-700">
+            <div class="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-700">
                 <div>
                     <h2 class="text-base font-bold text-zinc-900 dark:text-white">Mitra Terdaftar</h2>
                     <p class="text-xs text-zinc-400 mt-0.5">5 mitra paling baru</p>
@@ -288,7 +280,7 @@
                                         <div class="size-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-500 uppercase border border-zinc-200 dark:border-zinc-700 shrink-0">
                                             {{ substr($mitra->company_name, 0, 1) }}
                                         </div>
-                                        <span class="font-medium text-zinc-900 dark:text-zinc-100">{{ $mitra->company_name }}</span>
+                                        <span class="font-medium text-zinc-900 dark:text-zinc-100 m-2">{{ $mitra->company_name }}</span>
                                     </div>
                                 </td>
                                 <td class="py-3 px-4 text-zinc-600 dark:text-zinc-400">{{ $mitra->contact_person }}</td>
